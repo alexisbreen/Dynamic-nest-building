@@ -2,7 +2,7 @@
 
 //Script to run the experience-weighted attraction learning model for the manuscript
 
-//Strategic social learning in avian nest construction and potentially beyond
+//Dynamic strategic social learning in avian nest construction and potentially beyond
 
 //Code authored by Alexis J Breen (alexis_breen@eva.mpg.de) and Richard McElreath (richard_mcelreath@eva.mpg.de)
 

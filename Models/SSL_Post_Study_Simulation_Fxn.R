@@ -2,7 +2,7 @@
 
 #Script to run post-study forward simulations for the manuscript
 
-#Strategic social learning steers animal material technology
+#Dynamic strategic social learning in avian nest construction and potentially beyond
 
 #Code authored by Alexis J Breen (alexis_breen@eva.mpg.de)
 

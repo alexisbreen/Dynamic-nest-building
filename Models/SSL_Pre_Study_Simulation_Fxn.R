@@ -2,7 +2,7 @@
 
 #Script for the pre-study agent-based forward simulations for the manuscript
 
-#Strategic social learning in avian nest construction and potentially beyond
+#Dynamic strategic social learning in avian nest construction and potentially beyond
 
 #Code authored by Alexis J Breen (alexis_breen@eva.mpg.de)
 

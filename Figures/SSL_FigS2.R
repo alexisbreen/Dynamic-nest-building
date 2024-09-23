@@ -2,7 +2,7 @@
 
 #Script to run Figure S2 for the manuscript
 
-#Strategic social learning in avian nest construction and potentially beyond
+#Dynamic strategic social learning in avian nest construction and potentially beyond
 
 #Code authored by Alexis J Breen (alexis_breen@eva.mpg.de) 
 

@@ -2,7 +2,7 @@
 
 #Data processing script for the manuscript
 
-#Dynamic strategic social learning in avian nest construction and potentially beyond
+#Dynamic strategic social learning in nest-building birds and its generalisability
 
 #Code authored by Alexis J Breen (alexis_breen@eva.mpg.de)
 

@@ -1,12 +1,12 @@
-#####################################################################################################################################################
+################################################################################################################################################################################
 
-#Script to run Figure S1 for the manuscript
+#Script for plotting Figure S2 for the manuscript
 
-#Dynamic strategic social learning in avian nest construction and potentially beyond
+#Dynamic strategic social learning in nest-building zebra finches and its generalisability
 
-#Code authored by Alexis J Breen (alexis_breen@eva.mpg.de) 
+#Code authored by Alexis J Breen (alexis_breen@eva.mpg.de)
 
-#####################################################################################################################################################
+################################################################################################################################################################################
 
 #
 ##
@@ -14,19 +14,9 @@
 ##
 #
 
-#The following script must have already been run in order to fully execute the current script:
-
-#SSL_EWA_Model_Execution.R
-
-#Required packages:
+#Required packages
 
 library(rethinking) 
-
-#
-##
-###Figure pre-processing
-##
-#
 
 #Empty vectors to fill with initial attraction to pink and orange string per bird
 
@@ -43,7 +33,7 @@ for(i in 1:47) {
 #Function for stacked density plot, based on: https://stackoverflow.com/questions/25328533/overlapping-stacked-density-plots
 
 stacked.density <- function(data, fac = 3, xlim, col = 'black', 
-                             show.xaxis = T, xlab = '', ylab = ''){
+                            show.xaxis = T, xlab = '', ylab = ''){
   
   xvals = unlist(lapply(data, function(d) d$x))
   if(missing(xlim)) xlim=c(min(xvals), max(xvals))
@@ -66,11 +56,11 @@ stacked.density <- function(data, fac = 3, xlim, col = 'black',
 
 #
 ##
-###Plot Figure S1
+###Plot Figure S2
 ##
 #
 
-#pdf(file = "Figure_S1.pdf", height = 7, width = 5) #If want pdf of plot
+pdf(file = "Figure_S2.pdf", height = 7, width = 5) #If want pdf of plot
 
 #Setup plot space
 
@@ -96,5 +86,5 @@ stacked.density(rev(IO[1:47]), fac = .8, col=c("#FF5F1F"), show.xaxis = T)
 mtext("orange string",  cex = 1, side = 3, line = 0.5, font = 1)
 axis(2, at = seq(1, 47, by = 1), lwd = 0, labels = TRUE, cex.axis = .7)
 
-#dev.off() #If want pdf of plot
+dev.off() #If want pdf of plot
 

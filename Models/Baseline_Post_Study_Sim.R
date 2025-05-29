@@ -1,10 +1,10 @@
 ################################################################################################################################################################################
 
-#Script to run post-study forward simulations for the manuscript
+#Script for running EWA baseline model-generated forward simulations for the manuscript
 
-#Dynamic strategic social learning in avian nest construction and potentially beyond
+#Dynamic strategic social learning in nest-building zebra finches and its generalisability
 
-#Code authored by Alexis J Breen (alexis_breen@eva.mpg.de)
+#Code authored by Alexis J Breen (alexis_breen@eva.mpg.de) & Richard McElreath (richard_mcelreath@eva.mpg.de)
 
 ################################################################################################################################################################################
 
@@ -14,39 +14,28 @@
 ##
 #
 
-#The following script must have already been run in order to fully execute the current script:
-
-#SSL_EWA_Model_Execution.R
-
-#
-##
-###Build simulation function
-##
-#
-
-#To simulate new choosers from the estimated population, 
-#first derive the full posterior distribution with random effects variance-covariance matrix 
+#First derive the full posterior distribution with random effects variance-covariance matrix 
 
 #Extract posterior from EWA model
 
-s <- extract.samples(m)
+sb <- extract.samples(EWA_b)
 
 #1) Get standard deviation of learning parameters (variance) among individuals
 
-sigma_id <- s$sigma_ID
+sigma_id_b <- sb$sigma_ID
 
 #2) Compute correlation matrix from Cholesky factors
 
-Correlations <- array(numeric(),c(4000,4,4))
+Correlations_b <- array(numeric(),c(4000,4,4))
 for (i in 1:4000) {
-  Correlations[i,,] <- s$Rho_ID[i,,] %*% t(s$Rho_ID[i,,])
+  Correlations_b[i,,] <- sb$Rho_ID[i,,] %*% t(sb$Rho_ID[i,,])
 }
 
 #3) Compute variance-covariance matrix from variances and correlations
 
-S <- array(numeric(),c(4000,4,4))
+S_b <- array(numeric(),c(4000,4,4))
 for (i in 1:4000) {
-  S[i,,] <- diag(sigma_id[i,]) %*% Correlations[i,,]  %*% diag(sigma_id[i,])
+  S_b[i,,] <- diag(sigma_id_b[i,]) %*% Correlations_b[i,,]  %*% diag(sigma_id_b[i,])
 }
 
 #Extract posteriors for means
@@ -54,45 +43,45 @@ for (i in 1:4000) {
 #Phi
 
 phi_post <- array(numeric(), c(4000,2,2))
-phi_post[,1,1] <- s$logit_phi[,1,1] #Satisfied-construction
-phi_post[,1,2] <- s$logit_phi[,1,2] #Dissatisfied-construction
-phi_post[,2,1] <- s$logit_phi[,2,1] #Satisfied-reproduction
-phi_post[,2,2] <- s$logit_phi[,2,2] #Dissatisfied-reproduction
+phi_post[,1,1] <- sb$logit_phi[,1,1] #Mat-Sat
+phi_post[,1,2] <- sb$logit_phi[,1,2] #Mat-Diss
+phi_post[,2,1] <- sb$logit_phi[,2,1] #Inc-Sat
+phi_post[,2,2] <- sb$logit_phi[,2,2] #Inc-Diss
 
 #Lambda
 
 lambda_post <- array(numeric(), c(4000,2,2))
-lambda_post[,1,1] <- s$log_lambda[,1,1] #Satisfied-construction
-lambda_post[,1,2] <- s$log_lambda[,1,2] #Dissatisfied-construction
-lambda_post[,2,1] <- s$log_lambda[,2,1] #Satisfied-reproduction
-lambda_post[,2,2] <- s$log_lambda[,2,2] #Dissatisfied-reproduction
- 
-#Rho
+lambda_post[,1,1] <- sb$log_lambda[,1,1] 
+lambda_post[,1,2] <- sb$log_lambda[,1,2] 
+lambda_post[,2,1] <- sb$log_lambda[,2,1] 
+lambda_post[,2,2] <- sb$log_lambda[,2,2] 
 
-rho_post <- array(numeric(), c(4000,2,2))
-rho_post[,1,1] <- s$log_rho[,1,1] #Satisfied-construction
-rho_post[,1,2] <- s$log_rho[,1,2] #Dissatisfied-construction
-rho_post[,2,1] <- s$log_rho[,2,1] #Satisfied-reproduction
-rho_post[,2,2] <- s$log_rho[,2,2] #Dissatisfied-reproduction
+#Epsilon
+
+epsilon_post <- array(numeric(), c(4000,2,2))
+epsilon_post[,1,1] <- sb$log_epsilon[,1,1] 
+epsilon_post[,1,2] <- sb$log_epsilon[,1,2] 
+epsilon_post[,2,1] <- sb$log_epsilon[,2,1] 
+epsilon_post[,2,2] <- sb$log_epsilon[,2,2] 
 
 #Sigma
 
 sigma_post <- array(numeric(), c(4000,2,2))
-sigma_post[,1,1] <- s$logit_sigma[,1,1] #Satisfied-construction
-sigma_post[,1,2] <- s$logit_sigma[,1,2] #Dissatisfied-construction
-sigma_post[,2,1] <- s$logit_sigma[,2,1] #Satisfied-reproduction
-sigma_post[,2,2] <- s$logit_sigma[,2,2] #Dissatisfied-reproduction
+sigma_post[,1,1] <- sb$logit_sigma[,1,1] 
+sigma_post[,1,2] <- sb$logit_sigma[,1,2] 
+sigma_post[,2,1] <- sb$logit_sigma[,2,1] 
+sigma_post[,2,2] <- sb$logit_sigma[,2,2] 
 
 #Build post-hoc forward simulation function
 
-PH_sim_fct <- function( #Begin function definition and parameter imputation
+PH_base_sim_fct <- function( 
   N_sim = 1,            #Number of simulations to run
   N_choices = 25,       #Number of nest-material choices
   N_choosers = 500,     #Total number of choosers to draw from posterior - must be divisible by four! 
   N_soc_pay = 1,        #Reward payoff for choosing social material
   N_non_soc_pay = 1,    #Reward payoff for choosing non-social material
   SS_matched = 0)       #Whether to simulate within-treatment numbers matched to true sample size or use N_choosers value (0 = use N_choosers; 1 = use matched)
-
+  
 { #Begin definition of function operations
   
   #Create output object i.e., final dataset
@@ -109,7 +98,7 @@ PH_sim_fct <- function( #Begin function definition and parameter imputation
         stop()
       }
     }
-  
+    
     #For generating choosers within each treatment, decide whether to use matched to true sample size or not
     
     if(SS_matched == 0){ #If not, use defined number of simulated choosers divided by 4
@@ -127,7 +116,7 @@ PH_sim_fct <- function( #Begin function definition and parameter imputation
     #Define total number of individual choosers based on sample size determination above
     
     N_id <- N_S1 + N_D1 + N_S2 + N_D2
-      
+    
     #Define vector of random draws to be pulled from the posterior for each learning parameter 
     #If uneven treatment numbers, draws need this sample size information
     
@@ -146,28 +135,28 @@ PH_sim_fct <- function( #Begin function definition and parameter imputation
     
     #Generate choosers from multivariate normal distribution
     
-    Sim_S1 <- t(sapply(1:N_S1, function(i) rmvnorm(1, c(phi_post[draw_S1[i],1,1], lambda_post[draw_S1[i],1,1], rho_post[draw_S1[i], 1, 1], sigma_post[draw_S1[i], 1, 1]), S[draw_S1[i],,]))) #Satisfied-construction
-    Sim_D1 <- t(sapply(1:N_D1, function(i) rmvnorm(1, c(phi_post[draw_D1[i],1,2], lambda_post[draw_D1[i],1,2], rho_post[draw_D1[i], 1, 2], sigma_post[draw_D1[i], 1, 2]), S[draw_D1[i],,]))) #Dissatisfied-construction
-    Sim_S2 <- t(sapply(1:N_S2, function(i) rmvnorm(1, c(phi_post[draw_S2[i],2,1], lambda_post[draw_S2[i],2,1], rho_post[draw_S2[i], 2, 1], sigma_post[draw_S2[i], 2, 1]), S[draw_S2[i],,]))) #Satisfied-reproduction
-    Sim_D2 <- t(sapply(1:N_D2, function(i) rmvnorm(1, c(phi_post[draw_D2[i],2,2], lambda_post[draw_D2[i],2,2], rho_post[draw_D2[i], 2, 2], sigma_post[draw_D2[i], 2, 2]), S[draw_D2[i],,]))) #Dissatisfied-reproduction
+    Sim_S1 <- t(sapply(1:N_S1, function(i) rmvnorm(1, c(phi_post[draw_S1[i],1,1], lambda_post[draw_S1[i],1,1], epsilon_post[draw_S1[i], 1, 1], sigma_post[draw_S1[i], 1, 1]), S_b[draw_S1[i],,]))) #Satisfied-construction
+    Sim_D1 <- t(sapply(1:N_D1, function(i) rmvnorm(1, c(phi_post[draw_D1[i],1,2], lambda_post[draw_D1[i],1,2], epsilon_post[draw_D1[i], 1, 2], sigma_post[draw_D1[i], 1, 2]), S_b[draw_D1[i],,]))) #Dissatisfied-construction
+    Sim_S2 <- t(sapply(1:N_S2, function(i) rmvnorm(1, c(phi_post[draw_S2[i],2,1], lambda_post[draw_S2[i],2,1], epsilon_post[draw_S2[i], 2, 1], sigma_post[draw_S2[i], 2, 1]), S_b[draw_S2[i],,]))) #Satisfied-reproduction
+    Sim_D2 <- t(sapply(1:N_D2, function(i) rmvnorm(1, c(phi_post[draw_D2[i],2,2], lambda_post[draw_D2[i],2,2], epsilon_post[draw_D2[i], 2, 2], sigma_post[draw_D2[i], 2, 2]), S_b[draw_D2[i],,]))) #Dissatisfied-reproduction
     
     #Combine draws
     
     Sim_all <- rbind(Sim_S1, Sim_D1, Sim_S2, Sim_D2)
-      
+    
     #Index draws to target parameters & transform back to original scale to be used later in the model
     
     phi <- inv_logit(Sim_all[, 1])
     lambda <- exp(Sim_all[, 2])
-    rho <- exp(Sim_all[, 3])
+    epsilon <- exp(Sim_all[, 3])
     sigma <- inv_logit(Sim_all[, 4])
     
-    #lambda and rho can 'run away' because past a certain number the model 'thinks' any draw is 'big'
-    #This causes overflow when executing the equations below, which needs to be dampened by reducing draws past a reasonably high number - here, 200
+    #lambda and epsilon can 'run away' because past a certain number the model 'thinks' any draw is 'big'
+    #This causes overflow when executing the equations below, which needs to be clamped to reasonable number
     
-    lambda <- ifelse(lambda > 200, lambda/100000000, lambda) #Huge reducer number b/c in simulation 2 the reward value i.e., multiplier of 2 in equation below quickly causes overflow 
-    rho <- ifelse(rho > 200, rho/100000000, rho) #Huge reducer number b/c in simulation 2 the reward value i.e., multiplier of 2 in equation below quickly causes overflow 
-      
+    lambda <- ifelse(lambda > 15, 15, lambda) 
+    epsilon <- ifelse(epsilon > 10, 10, epsilon) 
+    
     #Empty attraction matrix to hold initial attraction draws of social and non-social material
     
     Atx <- matrix(0, N_id, 2)
@@ -187,10 +176,10 @@ PH_sim_fct <- function( #Begin function definition and parameter imputation
       #We draw from estimated attraction scores at deposit 1 (versus estimated baseline attraction before deposit 1)
       #We do this because these draws will be closer to true attractions due to recursive nature of estimation - see main text
       
-      for(i in 1:N_S1){Atx[i, ] <- c(s$Atx_soc[draw_all[i], 1, i], s$Atx_non_soc[draw_all[i], 1, i])} #Satisfied-construction
-      for(i in (max(N_S1) + 1):(max(N_S1) + max(N_D1))){Atx[i, ] <- c(s$Atx_soc[draw_all[i], 1, i], s$Atx_non_soc[draw_all[i], 1, i])} #Dissatisfied-construction
-      for(i in (max(N_S1) + max(N_D1) + 1):(max(N_S1) + max(N_D1) + max(N_S2))){Atx[i, ] <- c(s$Atx_soc[draw_all[i], 1, i], s$Atx_non_soc[draw_all[i], 1, i])} #Satisfied-reproduction
-      for(i in (max(N_S1) + max(N_D1) + max(N_S2) + 1):(max(N_S1) + max(N_D1) + max(N_S2) + max(N_D2))){Atx[i, ] <- c(s$Atx_soc[draw_all[i], 1, i], s$Atx_non_soc[draw_all[i], 1, i])} #Dissatisfied-reproduction
+      for(i in 1:N_S1){Atx[i, ] <- c(sb$Atx_soc[draw_all[i], 1, i], sb$Atx_non_soc[draw_all[i], 1, i])} #Satisfied-construction
+      for(i in (max(N_S1) + 1):(max(N_S1) + max(N_D1))){Atx[i, ] <- c(sb$Atx_soc[draw_all[i], 1, i], sb$Atx_non_soc[draw_all[i], 1, i])} #Dissatisfied-construction
+      for(i in (max(N_S1) + max(N_D1) + 1):(max(N_S1) + max(N_D1) + max(N_S2))){Atx[i, ] <- c(sb$Atx_soc[draw_all[i], 1, i], sb$Atx_non_soc[draw_all[i], 1, i])} #Satisfied-reproduction
+      for(i in (max(N_S1) + max(N_D1) + max(N_S2) + 1):(max(N_S1) + max(N_D1) + max(N_S2) + max(N_D2))){Atx[i, ] <- c(sb$Atx_soc[draw_all[i], 1, i], sb$Atx_non_soc[draw_all[i], 1, i])} #Dissatisfied-reproduction
       
     } else { #If not matched
       
@@ -205,10 +194,10 @@ PH_sim_fct <- function( #Begin function definition and parameter imputation
       #We draw from estimated attraction scores at deposit 1 (versus estimated baseline attraction before deposit 1)
       #We do this because these draws will be closer to true attractions due to recursive nature of estimation - see main 
       
-      for(i in 1:N_S1){Atx[i, ] <- c(s$Atx_soc[draw_all[i], 1, id_A[i]], s$Atx_non_soc[draw_all[i], 1, id_A[i]])} #Satisfied-construction
-      for(i in (max(N_S1) + 1):(max(N_S1) + max(N_D1))){Atx[i, ] <- c(s$Atx_soc[draw_all[i], 1, id_A[i]], s$Atx_non_soc[draw_all[i], 1, id_A[i]])} #Dissatisfied-construction
-      for(i in (max(N_S1) + max(N_D1) + 1):(max(N_S1) + max(N_D1) + max(N_S2))){Atx[i, ] <- c(s$Atx_soc[draw_all[i], 1, id_A[i]], s$Atx_non_soc[draw_all[i], 1, id_A[i]])} #Satisfied-reproduction
-      for(i in (max(N_S1) + max(N_D1) + max(N_S2) + 1):(max(N_S1) + max(N_D1) + max(N_S2) + max(N_D2))){Atx[i, ] <- c(s$Atx_soc[draw_all[i], 1, id_A[i]], s$Atx_non_soc[draw_all[i], 1, id_A[i]])} #Dissatisfied-reproduction
+      for(i in 1:N_S1){Atx[i, ] <- c(sb$Atx_soc[draw_all[i], 1, id_A[i]], sb$Atx_non_soc[draw_all[i], 1, id_A[i]])} #Satisfied-construction
+      for(i in (max(N_S1) + 1):(max(N_S1) + max(N_D1))){Atx[i, ] <- c(sb$Atx_soc[draw_all[i], 1, id_A[i]], sb$Atx_non_soc[draw_all[i], 1, id_A[i]])} #Dissatisfied-construction
+      for(i in (max(N_S1) + max(N_D1) + 1):(max(N_S1) + max(N_D1) + max(N_S2))){Atx[i, ] <- c(sb$Atx_soc[draw_all[i], 1, id_A[i]], sb$Atx_non_soc[draw_all[i], 1, id_A[i]])} #Satisfied-reproduction
+      for(i in (max(N_S1) + max(N_D1) + max(N_S2) + 1):(max(N_S1) + max(N_D1) + max(N_S2) + max(N_D2))){Atx[i, ] <- c(sb$Atx_soc[draw_all[i], 1, id_A[i]], sb$Atx_non_soc[draw_all[i], 1, id_A[i]])} #Dissatisfied-reproduction
       
     }
     
@@ -221,11 +210,11 @@ PH_sim_fct <- function( #Begin function definition and parameter imputation
       exp_id <- rep(1:2, c(18,29))
       sat_id <- rep(c(1,2,1,2), c(10,8,14,15))
     }
-      
+    
     #Loop over choosers
     
     for(ind in 1:N_id){ 
-        
+      
       #print(ind) #To live-track simulation progress 
       
       #Set initial attractions to coloured nest material
@@ -268,21 +257,21 @@ PH_sim_fct <- function( #Begin function definition and parameter imputation
         d$social[trial] <- soc
         
         #Calculate decision probabilities 
-       
+        
         Prob <- c() #Empty vector to fill with decision probabilities
         if(soc == 0){
           Prob[1] <- exp(lambda[ind] * A[1]) / sum(exp(lambda[ind] * A)) 
           Prob[2] <- exp(lambda[ind] * A[2]) / sum(exp(lambda[ind] * A)) 
         } else {
-          Prob[1] <- (1 - sigma[ind]) * exp(lambda[ind] * A[1]) / sum(exp(lambda[ind] * A)) + (sigma[ind] * ((NB[1] ^ rho[ind]) / ( (NB[1] ^ rho[ind]) + (NB[2] ^ (1)) ))) 
-          Prob[2] <- (1 - sigma[ind]) * exp(lambda[ind] * A[2]) / sum(exp(lambda[ind] * A)) + (sigma[ind] * ((NB[2] ^ (1)) / ( (NB[1] ^ rho[ind]) + (NB[2] ^ (1)) ))) 
+          Prob[1] <- (1 - sigma[ind]) * exp(lambda[ind] * A[1]) / sum(exp(lambda[ind] * A)) + (sigma[ind] * ((NB[1] ^ epsilon[ind]) / ( (NB[1] ^ epsilon[ind]) + (NB[2] ^ (1)) ))) 
+          Prob[2] <- (1 - sigma[ind]) * exp(lambda[ind] * A[2]) / sum(exp(lambda[ind] * A)) + (sigma[ind] * ((NB[2] ^ (1)) / ( (NB[1] ^ epsilon[ind]) + (NB[2] ^ (1)) ))) 
           
         }
         
         #Make choice proportional to attraction scores
         
         d$choice[which(d$trial == trial)] <- sample(c(1:2), size = 1, prob = Prob) #Make the bird choose among the two choice-options, based on the choice probabilities defined above    
-          
+        
         #Determine copy based on choice
         
         if(d$choice[trial] == 1){ #If the bird chose the social option
@@ -290,7 +279,7 @@ PH_sim_fct <- function( #Begin function definition and parameter imputation
         } else {                  #But if the bird chose the non-social option
           d$copy[trial] <- 0      #The bird is assigned to have not copied 
         }                         #End determination 
-          
+        
         #Update attractions
         
         if(d$choice[trial] == 1){                                                #If choose social
@@ -300,12 +289,12 @@ PH_sim_fct <- function( #Begin function definition and parameter imputation
           A[1] <- (1 - phi[ind]) * A[d$choice[trial]] + phi[ind] * 0             #Attraction for social decrease
           A[2] <- (1 - phi[ind]) * A[d$choice[trial]] + phi[ind] * N_non_soc_pay #Attraction for non-social increase
         }
-          
+        
         #Assign attraction scores to data frame 
         
         d$Atx_soc[trial] <- A[1]     #This is social
         d$Atx_non_soc[trial] <- A[2] #This is non-social
-          
+        
         #Assign treatment to data frame
         
         if(d$experiment[trial] == 1){  #If experimental treatment is construction
@@ -333,15 +322,15 @@ PH_sim_fct <- function( #Begin function definition and parameter imputation
         
         
       } #End looping over material-choice decisions
-        
+      
       #Add data from each bird to large output object        
       
       d_Overall <- rbind(d_Overall, d) 
-        
+      
     } #End looping over each bird
-  
+    
   } #End looping over simulations
-
+  
   #Assign results to output object  
   
   return(d_Overall) 

@@ -2,9 +2,9 @@
 
 This GitHub repository hosts open materials for the manuscript
 
-**Dynamic strategic social learning in avian nest construction and potentially beyond**
+**Dynamic strategic social learning in nest-building zebra finches and its generalisability**
 
-and all code was authored by Alexis J. Breen (alexis_breen@eva.mpg.de) & Richard McElreath (‍richard_mcelreath@eva.mpg.de)
+All code was authored by Alexis J. Breen (alexis_breen@eva.mpg.de) & Richard McElreath (‍richard_mcelreath@eva.mpg.de)
 
 **Data Processing folder contains:**
 
@@ -18,17 +18,29 @@ and all code was authored by Alexis J. Breen (alexis_breen@eva.mpg.de) & Richard
 
 **Figures folder contains:**
 
-- SSL_Fig2.R script to reproduce Figure 2 in the main text; this includes running the post-study agent-based forward simulations
-- SSL_Fig2_Icon.png used in Figure 2
-- SSL_FigS1.R script to reproduce supplementary Figure 1 showing baseline material attractions
-- SSL_FigS2.R script to reproduce supplementary Figure 2; this includes running the pre-study agent-based forward simulations
+- Figure_1.R script 
+- Figure_1.R script
+- Figure_3.R script
+- Figure_4.R script
+- Figure_S1.R script 
+- Figure_S1.R script
+- Figure_S3.R script
+- Figure_S4.R script
 
 **Models folder contains:**
 
-- SSL_EWA_Model.stan script expressing the defined multi-level experience-weighted attraction model, examining asocial and social influence on material choice
-- SSL_EWA_Model_Execution.stan script to prepare data for, run, and post-process (e.g., extract posteriors) the learning parameter estimates generated from the EWA model
-- SSL_Post_Study_Simulation_Fxn.R script to build the agent-based forward simulation function to test for replication plus effect(s) of varying reward-payoffs on 'choosers' generally
-- SSL_Post_Study_Simulation_Fxn.R script to build the agent-based forward simulation function to validate our EWA model fit a priori
+- LR_FC_Model.stan script expressing the defined hierarchical logistic regression model, examining the effect of treatment on first choice
+- LR_AC_Model.stan script expressing the defined hierarchical logistic regression model, examining the effect of treatment on all choices, with trial-number and treatment slopes
+
+- EWA_Baseline_Model.stan script expressing the defined non-time-varying multi-level experience-weighted attraction model, examining asocial and social influence on material choice
+- EWA_Montonic_Model.stan script expressing the defined time-structured multi-level experience-weighted attraction model, examining asocial and social influence on material choice
+- EWA_Model_Summaries.R script to summarise the estimate of both EWA baseline and monotonic models in a table
+
+- Base_And_Mono_Pre_Study_Sim.R script to simulate data for EWA model validation checks
+- Baseline_Post_Study_Sim.R script to simulate data from the EWA baseline model posterior
+- Monotonic_Post_Study_Sim.R script to simulate data from the EWA monotonic model posterior
+
+- Model_Execution.R script to run all stan models
 
 **Software requirements:**
 

@@ -1,4 +1,4 @@
-# Dynamic-nest-construction
+# Dynamic-nest-building
 
 This GitHub repository hosts open materials for the manuscript
 

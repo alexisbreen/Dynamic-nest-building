@@ -21,7 +21,8 @@ library(dplyr)
 
 #Load data
 
-SSL_d <- read.csv(file.choose(), header = TRUE) #File: SSL_Data_Test_Processed.csv
+setwd("~/GitHub/Dynamic-nest-building")
+SSL_d <- read.csv("Data/SSL_Test_Data_Processed.csv") 
 
 #Convert choice to binary
 

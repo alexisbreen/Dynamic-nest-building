@@ -20,8 +20,9 @@ library(rethinking)
 
 #Load data 
 
-SSL_d <- read.csv(file.choose(), header = T) #File: SSL_Test_Data_Processed
-IMP_d <- read.csv(file.choose(), header = T) #File: SSL_IMP_Data_Processed
+setwd("~/GitHub/Dynamic-nest-building")
+SSL_d <- read.csv("Data/SSL_Test_Data_Processed.csv") 
+IMP_d <- read.csv("Data/SSL_IMP_Data_Processed.csv") 
 
 #Minor data wrangling for first-choice model
 
@@ -76,7 +77,7 @@ str(EWA_stan_list)
 #
 
 FC_m <- cstan( #First choice
-  file = "~/SSL/For_Git/LR_FC_Model.stan", #Your path here
+  file = "Models/LR_FC_Model.stan", 
   data = FC_stan_list,
   cores = 4,
   chains = 4,
@@ -86,7 +87,7 @@ FC_m <- cstan( #First choice
 )
 
 AC_m <- cstan( #All choices
-  file = "~/SSL/For_Git/LR_All_Choices_Model.stan", #Your path here
+  file = "Models/LR_All_Choices_Model.stan", #Your path here
   data = All_choice_stan_list,
   cores = 4,
   chains = 4,
@@ -96,7 +97,7 @@ AC_m <- cstan( #All choices
 )
 
 EWA_b <- cstan( #EWA baseline model
-  file = "~/SSL/For_Git/EWA_Baseline_Model.stan", #Your path here
+  file = "Models/EWA_Baseline_Model.stan", #Your path here
   data = EWA_stan_list,
   cores = 4,
   chains = 4,
@@ -106,7 +107,7 @@ EWA_b <- cstan( #EWA baseline model
 )
 
 EWA_m <- cstan( #EWA monotonic model
-  file = "~/SSL/For_Git/EWA_Monotonic_Model.stan", #Your path here
+  file = "Models/EWA_Monotonic_Model.stan", #Your path here
   data = EWA_stan_list,
   cores = 4,
   chains = 4,
@@ -168,7 +169,7 @@ str(EWA_PS_mono_list)
 #Run EWA models on simulated data
 
 PS_EWA_b <- cstan(
-  file = "~/SSL/For_Git/EWA_Baseline_Model.stan", #Your path here
+  file = "Models/EWA_Baseline_Model.stan", #Your path here
   data = EWA_PS_base_list,
   cores = 4,
   chains = 4,
@@ -178,7 +179,7 @@ PS_EWA_b <- cstan(
 )
 
 PS_EWA_m <- cstan(
-  file = "~/SSL/For_Git/EWA_Monotonic_Model.stan", #Your path here
+  file = "Models/EWA_Monotonic_Model.stan", #Your path here
   data = EWA_PS_mono_list,
   cores = 4,
   chains = 4,

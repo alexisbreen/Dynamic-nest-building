@@ -13,9 +13,10 @@
 library(tidyverse)
 library(rethinking)
 
-#Load raw data (file name: SSL_Data_Original.csv)
+#Load raw data 
 
-raw_d <- read.csv(file.choose(),header=T)
+setwd("~/GitHub/Dynamic-nest-building")
+raw_d <- read.csv("Data Processing/SSL_Data_Original.csv")
 
 #First, prepare initial material preference measures
 

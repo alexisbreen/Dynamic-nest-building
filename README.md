@@ -19,11 +19,11 @@ All code was authored by Alexis J. Breen (alexis_breen@eva.mpg.de) & Richard McE
 **Figures folder contains:**
 
 - Figure_1.R script 
-- Figure_1.R script
+- Figure_2.R script
 - Figure_3.R script
 - Figure_4.R script
 - Figure_S1.R script 
-- Figure_S1.R script
+- Figure_S2.R script
 - Figure_S3.R script
 - Figure_S4.R script
 

@@ -8,7 +8,7 @@
 
 ################################################################################################################################################################################
 
-#
+##
 ##
 ###Housekeeping
 ##
@@ -25,6 +25,7 @@ sb <- extract.samples(EWA_b)
 sm <- extract.samples(EWA_m)
 
 #Define treatment indices and labels
+
 treatment_indices <- list(
   c(1:10),   #Mat-Sat
   c(11:18),  #Mat-Diss
@@ -33,11 +34,6 @@ treatment_indices <- list(
 )
 
 treatment_labels <- c("Mat-Sat", "Mat-Diss", "Inc-Sat", "Inc-Diss")
-
-#Transform + cap functions
-inv_logit_capped <- function(x) inv_logit(x)
-exp_capped_lambda <- function(x) pmin(exp(x), 15)
-exp_capped_epsilon <- function(x) pmin(exp(x), 10)
 
 #
 ##
@@ -48,25 +44,23 @@ exp_capped_epsilon <- function(x) pmin(exp(x), 10)
 #Function to compute posterior summaries per treatment
 summarise_baseline <- function(param_matrix, v_ID, param_index, transform_fn) {
   out <- list()
-  for (t in 1:4) {
+  for(t in 1:4){
     inds <- treatment_indices[[t]]
     g1 <- ifelse(t <= 2, 1, 2)
     g2 <- ifelse(t %% 2 == 1, 1, 2)
-    all_draws <- sapply(inds, function(i) {
+    all_draws <- sapply(inds, function(i){
       transform_fn(param_matrix[, g1, g2] + v_ID[, i, param_index])
     })
-    # Take the mean across individuals (row-wise)
     pooled <- rowMeans(all_draws)
     out[[t]] <- c(mean = mean(pooled), HPDI(pooled, prob = 0.89))
   }
   return(out)
 }
 
-#Compute summaries
-baseline_phi    <- summarise_baseline(sb$logit_phi, sb$v_ID, 4, inv_logit_capped)
-baseline_lambda <- summarise_baseline(sb$log_lambda, sb$v_ID, 1, exp_capped_lambda)
-baseline_epsilon    <- summarise_baseline(sb$log_epsilon, sb$v_ID, 2, exp_capped_epsilon)
-baseline_sigma  <- summarise_baseline(sb$logit_sigma, sb$v_ID, 3, inv_logit_capped)
+baseline_phi     <- summarise_baseline(sb$logit_phi, sb$v_ID, 4, inv_logit)
+baseline_lambda  <- summarise_baseline(sb$log_lambda, sb$v_ID, 1, function(x) pmin(exp(x), 15))
+baseline_epsilon <- summarise_baseline(sb$log_epsilon, sb$v_ID, 2, function(x) pmin(exp(x), 10))
+baseline_sigma   <- summarise_baseline(sb$logit_sigma, sb$v_ID, 3, inv_logit)
 
 #
 ##
@@ -74,36 +68,36 @@ baseline_sigma  <- summarise_baseline(sb$logit_sigma, sb$v_ID, 3, inv_logit_capp
 ##
 #
 
-summarise_monotonic <- function(first_param, last_param, v_ID, index, transform_fn) {
-  out <- list()
-  for (t in 1:4) {
-    inds <- treatment_indices[[t]]
-    g1 <- ifelse(t <= 2, 1, 2)
-    g2 <- ifelse(t %% 2 == 1, 1, 2)
-    
-    all_first <- sapply(inds, function(i) {
-      transform_fn(first_param[, g1, g2] + v_ID[, i, index])
-    })
-    all_last <- sapply(inds, function(i) {
-      transform_fn(last_param[, g1, g2] + v_ID[, i, index + 1])
-    })
-    
-    pooled_first <- rowMeans(all_first)
-    pooled_last  <- rowMeans(all_last)
-    
-    out[[t]] <- list(
-      first = c(mean = mean(pooled_first), HPDI(pooled_first, prob = 0.89)),
-      last  = c(mean = mean(pooled_last),  HPDI(pooled_last,  prob = 0.89))
-    )
+summarise_monotonic <- function(first_param, last_param, delta, v_ID_col, subset_j, transform = identity, cap = NULL) {
+  Delta_mu <- apply(delta, 2, mean)
+  Delta_mu <- c(0, Delta_mu)
+  
+  effect_matrix <- matrix(0, nrow = length(subset_j), ncol = 25)
+  
+  for(j_idx in seq_along(subset_j)){
+    j <- subset_j[j_idx]
+    idx <- get_treatment_indices(j)
+    for (i in 1:25) {
+      first <- transform(mean(first_param[, idx[1], idx[2]]) + mean(sm$v_ID[, j, v_ID_col]))
+      last  <- transform(mean(last_param[, idx[1], idx[2]]) + mean(sm$v_ID[, j, v_ID_col + 1]))
+      value <- first + (last - first) * sum(Delta_mu[1:i])
+      if (!is.null(cap)) value <- pmin(value, cap)
+      effect_matrix[j_idx, i] <- value
+    }
   }
-  return(out)
+  
+  first_values <- effect_matrix[, 1]
+  last_values  <- effect_matrix[, 25]
+  list(
+    first = c(mean = mean(first_values), HPDI(first_values, prob = 0.89)),
+    last  = c(mean = mean(last_values),  HPDI(last_values,  prob = 0.89))
+  )
 }
 
-#Apply to each parameter
-mono_phi    <- summarise_monotonic(sm$logit_phi_first, sm$logit_phi_last,   sm$v_ID, 7, inv_logit)
-mono_lambda <- summarise_monotonic(sm$log_lambda_first, sm$log_lambda_last,  sm$v_ID, 1, function(x) pmin(exp(x), 15))
-mono_epsilon    <- summarise_monotonic(sm$log_epsilon_first, sm$log_epsilon_last, sm$v_ID, 3, function(x) pmin(exp(x), 10))
-mono_sigma  <- summarise_monotonic(sm$logit_sigma_first, sm$logit_sigma_last, sm$v_ID, 5, inv_logit)
+mono_phi     <- lapply(treatment_indices, function(j) summarise_monotonic(sm$logit_phi_first, sm$logit_phi_last, sm$delta_phi, 7, j, inv_logit))
+mono_lambda  <- lapply(treatment_indices, function(j) summarise_monotonic(sm$log_lambda_first, sm$log_lambda_last, sm$delta_lambda, 1, j, exp_capped_lambda, 15))
+mono_epsilon <- lapply(treatment_indices, function(j) summarise_monotonic(sm$log_epsilon_first, sm$log_epsilon_last, sm$delta_epsilon, 3, j, exp_capped_epsilon, 10))
+mono_sigma   <- lapply(treatment_indices, function(j) summarise_monotonic(sm$logit_sigma_first, sm$logit_sigma_last, sm$delta_sigma, 5, j, inv_logit))
 
 #
 ##
@@ -133,9 +127,13 @@ lambda_table <- make_summary_table("lambda", baseline_lambda, mono_lambda)
 epsilon_table    <- make_summary_table("epsilon", baseline_epsilon, mono_epsilon)
 sigma_table  <- make_summary_table("sigma", baseline_sigma, mono_sigma)
 
-#Combine all
-final_table <- rbind(phi_table, lambda_table, epsilon_table, sigma_table)
+#Combine all & round
+
+final_table_rounded <- final_table
+num_cols <- sapply(final_table_rounded, is.numeric)
+final_table_rounded[num_cols] <- lapply(final_table_rounded[num_cols], function(x) round(x, 2))
 
 #View table
-print(final_table)
+
+print(final_table_rounded)
 

@@ -68,6 +68,12 @@ baseline_sigma   <- summarise_baseline(sb$logit_sigma, sb$v_ID, 3, inv_logit)
 ##
 #
 
+#Transform + cap functions
+
+inv_logit_capped <- function(x) inv_logit(x)
+exp_capped_lambda <- function(x) pmin(exp(x), 15)
+exp_capped_epsilon <- function(x) pmin(exp(x), 10)
+
 summarise_monotonic <- function(first_param, last_param, delta, v_ID_col, subset_j, transform = identity, cap = NULL) {
   Delta_mu <- apply(delta, 2, mean)
   Delta_mu <- c(0, Delta_mu)

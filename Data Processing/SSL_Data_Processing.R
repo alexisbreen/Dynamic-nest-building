@@ -15,7 +15,7 @@ library(rethinking)
 
 #Load raw data 
 
-setwd("~/GitHub/Dynamic-nest-building")
+setwd(file.path(dirname(rstudioapi::getActiveDocumentContext()$path), ".."))
 raw_d <- read.csv("Data Processing/SSL_Data_Original.csv")
 
 #First, prepare initial material preference measures

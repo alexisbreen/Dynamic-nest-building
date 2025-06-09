@@ -20,7 +20,8 @@ library(rethinking)
 
 #Load data 
 
-setwd("~/GitHub/Dynamic-nest-building")
+setwd(file.path(dirname(rstudioapi::getActiveDocumentContext()$path), ".."))
+
 SSL_d <- read.csv("Data/SSL_Test_Data_Processed.csv") 
 IMP_d <- read.csv("Data/SSL_IMP_Data_Processed.csv") 
 

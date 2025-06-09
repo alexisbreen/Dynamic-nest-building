@@ -21,7 +21,7 @@ library(dplyr)
 
 #Load data
 
-setwd("~/GitHub/Dynamic-nest-building")
+setwd(file.path(dirname(rstudioapi::getActiveDocumentContext()$path), ".."))
 SSL_d <- read.csv("Data/SSL_Test_Data_Processed.csv") 
 
 #Convert choice to binary

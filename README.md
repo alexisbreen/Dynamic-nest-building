@@ -26,6 +26,7 @@ All code was authored by Alexis J. Breen (alexis_breen@eva.mpg.de) & Richard McE
 - Figure_S2.R script
 - Figure_S3.R script
 - Figure_S4.R script
+- Figure_S5.R script
 
 **Models folder contains:**
 
@@ -35,7 +36,9 @@ All code was authored by Alexis J. Breen (alexis_breen@eva.mpg.de) & Richard McE
 - EWA_Baseline_Model.stan script expressing the defined non-time-varying multi-level experience-weighted attraction model, examining asocial and social influence on material choice
 - EWA_Montonic_Model.stan script expressing the defined time-structured multi-level experience-weighted attraction model, examining asocial and social influence on material choice
 - EWA_Model_Summaries.R script to summarise the estimate of both EWA baseline and monotonic models in a table
-- LR_Contrast_Summaries.R script to summarise the first choice and all choices logistic regression model contrasts in a table 
+- LR_Contrast_Summaries.R script to summarise the first choice and all choices logistic regression model contrasts in a table
+
+- EWA_Baseline_And_Montonic_Model_Predictive_Power_Checks to run the approximate Pareto-Smoothed Importance Sampling Leave-Future-Out Cross-Validations
 
 - Base_And_Mono_Pre_Study_Sim.R script to simulate data for EWA model validation checks
 - Baseline_Post_Study_Sim.R script to simulate data from the EWA baseline model posterior

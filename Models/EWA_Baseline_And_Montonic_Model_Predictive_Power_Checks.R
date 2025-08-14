@@ -1,6 +1,6 @@
 ################################################################################################################################################################################
 
-#Script for model prediction model power checks (Pareto-Smoothed Importance Sampling Leave-Future-Out Cross-Validation) for the manuscript
+#Script for model prediction power checks (Pareto-Smoothed Importance Sampling Leave-Future-Out Cross-Validation) for the manuscript
 
 #Dynamic strategic social learning in nest-building zebra finches and its generalisability
 
@@ -15,11 +15,11 @@
 #
 
 #Library packages to load
-library(cmdstanr)           #Interface for fitting Stan models using CmdStan backend
+library(cmdstanr)           
 library(loo)                #For approximate leave-one-out cross-validation diagnostics
-library(MASS)               #Includes statistical functions and datasets e.g., multivariate normal
+library(MASS)               
 library(posterior)          #Tools for working with posterior draws from Bayesian models
-library(rethinking)         #Companion package to the Statistical Rethinking book by McElreath; includes convenient Bayesian wrappers
+library(rethinking)        
 
 #Note Model_Execution.R script must have been run to run the below!
 

@@ -14,7 +14,7 @@ All code was authored by Alexis J. Breen (alexis_breen@eva.mpg.de) & Richard McE
 **Data folder contains:**
  
 - SSL_IMP_Data_Processed.csv produced from SSL_Data_Processing.R script & used for all analyses/graphing related to initial material preference
-- SSL_IMP_Test_Data_Processed.csv produced from SSL_Data_Processing.R script & used for all analyses/graphing related to final material preference
+- SSL_Test_Data_Processed.csv produced from SSL_Data_Processing.R script & used for all analyses/graphing related to final material preference
 
 **Figures folder contains:**
 
@@ -38,7 +38,7 @@ All code was authored by Alexis J. Breen (alexis_breen@eva.mpg.de) & Richard McE
 - EWA_Model_Summaries.R script to summarise the estimate of both EWA baseline and monotonic models in a table
 - LR_Contrast_Summaries.R script to summarise the first choice and all choices logistic regression model contrasts in a table
 
-- EWA_Baseline_And_Montonic_Model_Predictive_Power_Checks to run the approximate Pareto-Smoothed Importance Sampling Leave-Future-Out Cross-Validations
+- EWA_Baseline_And_Montonic_Model_Predictive_Power_Checks.R script to run the approximate Pareto-Smoothed Importance Sampling Leave-Future-Out Cross-Validations
 
 - Base_And_Mono_Pre_Study_Sim.R script to simulate data for EWA model validation checks
 - Baseline_Post_Study_Sim.R script to simulate data from the EWA baseline model posterior

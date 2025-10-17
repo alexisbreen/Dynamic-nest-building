@@ -1,8 +1,8 @@
 # Dynamic-nest-building
 
-This GitHub repository hosts open materials for the manuscript
+This GitHub repository hosts open materials for the *Proceedings B* paper
 
-[**Dynamic strategic social learning in nest-building zebra finches and its generalisability**](https://www.biorxiv.org/content/10.1101/2025.06.06.658225v1)
+[**Dynamic strategic social learning in nest-building zebra finches and its generalisability**](https://doi.org/10.1098/rspb.2025.1508)
 
 All code was authored by Alexis J. Breen (alexis_breen@eva.mpg.de) & Richard McElreath (‍richard_mcelreath@eva.mpg.de)
 
